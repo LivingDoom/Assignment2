@@ -23,3 +23,9 @@ encrypted_text.txt . You must then write a function that decrypts that file, and
 function that verifies the decryption was successful.
 
 """
+
+def encrypt_file(x, y):
+    pass
+
+def decrypt_file(x, y):
+    pass
