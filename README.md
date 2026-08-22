@@ -4,7 +4,8 @@ SoftwareNow - Assignment2
 Cipher.py
 
 Group Name: [DAN/EXT12] 
-Group Members: 
+Group Members:
+
 [Kayla Edwards]                 -           [S396018] 
 
 [Jonathan William McPhail]      -           [S368879] 
