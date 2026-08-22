@@ -1,2 +1,12 @@
 # Assignment2
 SoftwareNow - Assignment2
+
+Cipher.py
+
+Group Name: [DAN/EXT12] 
+Group Members: 
+[Kayla Edwards]                 -           [S396018] 
+[Jonathan William McPhail]      -           [S368879] 
+[Ibrahim Najjarine]             -           [S407912] 
+[Glen Mark Pasigna]             -           [S328808] 
+
