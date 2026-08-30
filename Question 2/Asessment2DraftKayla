@@ -1,0 +1,76 @@
+
+def calculate_results(data):
+    # Add your final analysis or calculation logic here
+
+    def four():
+    # 1. Grab the base operand
+        node = primary()
+    
+    # 2. If the right-associative operator matches, recurse into yourself
+        if current_token() == '^':
+            op = next_token()
+            right = four() # <-- Note the recursive call to exponent()
+        
+        # This naturally groups the operation to the right
+        node =  BinOpNode(left=node, op=op, right=right)
+        
+        return node
+
+    #Having trouble understanding how to impliment unary- to be understood and unary+ to produce an error
+    
+    def implicitm(self):
+
+        node = self.parse_factor()
+
+        while self.current_token:
+            if self.current_token.type == TokenType.MULTIPLY:
+                self.consume(TokenType.MULTIPLY)
+                node = BinaryOp('*', node, self.parse_factor())
+
+            elif self.is_start_of_factor(self.current_token):
+                # Implicit multiplication trigger
+                node = BinaryOp('*', node, self.parse_factor())
+
+            else:
+                break
+        return node
+
+    def two():
+                # 1. Grab the first operand (left-hand side)
+        node = term() 
+            
+                # 2. Keep looping as long as we see operators of the same precedence
+        while current_token() in ['*', '/', '%', 'implicitm()']:
+            op = next_token()
+            right = term() # Grab the next operand
+                
+                # 3. Wrap old node inside the new tree node (left-heavy tree)
+        node = BinOpNode(left=node, op=op, right=right) 
+    
+        return node
+
+    def one():
+            # 1. Grab the first operand (left-hand side)
+        node = term() 
+        
+            # 2. Keep looping as long as we see operators of the same precedence
+        while current_token() in ['+', '-']:
+            op = next_token()
+            right = term() # Grab the next operand
+            
+                # 3. Wrap old node inside the new tree node (left-heavy tree)
+        node = BinOpNode(left=node, op=op, right=right) 
+
+        return node
+    
+    return len(data)
+    
+with open('sample_input.txt', 'r') as f:
+    for line in f:
+        print("Input: ", line.strip())
+        print("Tree: ", line.strip())
+        print("Token: ", line.strip())
+        print("Results: ", calculate_results(line.strip()))
+        print()
+
+        
