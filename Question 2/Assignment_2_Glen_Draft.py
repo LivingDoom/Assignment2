@@ -42,8 +42,12 @@ fake_results ={
 
 def format_tree(node):                  
     kind = node[0]
-    if kind == "num":               
-        return str(node[1])
+    if kind == "num":
+        number = node[1
+        if number % 1 == 0:
+            return str(int(number))
+        else:
+            return str(number)
     if kind == "neg":
         return "(neg " + format_tree(node[1]) + ")"
     if kind == "op":
