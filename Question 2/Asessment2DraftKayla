@@ -114,16 +114,16 @@ def evaluate(expr: Expr) -> float:
 
 with open('sample_input.txt', 'r') as f:
     for line in f:
-            print(f"Input:  {line}")
+        print(f"Input:  {line}")
         
-            tokens = tokenize(line)
-            print(f"Tokens: {tokens}")
+        tokens = tokenize(line)
+        print(f"Tokens: {tokens}")
                 
-            parse_func = create_parser(tokens)
-            tree = parse_func()
-            print(f"Tree:   {tree}")
+        parse_func = create_parser(tokens)
+        tree = parse_func()
+        print(f"Tree:   {tree}")
                 
-            result = evaluate(tree)
-            print(f"Result: {result}")
+        result = evaluate(tree)
+        print(f"Result: {result}")
 
-            print()
+        print()
