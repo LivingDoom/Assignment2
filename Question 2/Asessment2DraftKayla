@@ -1,76 +1,129 @@
+from typing import List, Tuple, Union
+import re
 
-def calculate_results(data):
-    # Add your final analysis or calculation logic here
+# Type aliases
+Token = Tuple[str, str]  # (type, value)
+Expr = Union[float, Tuple]  # expression: number or operator tuple
 
-    def four():
-    # 1. Grab the base operand
+def tokenize(expr_str: str) -> List[Token]:
+    tokens = []
+    token_pattern = r'(\d+\.?\d*|[+\-*/%^()])'
+    
+    for match in re.finditer(token_pattern, expr_str):
+        value = match.group(1)
+        if re.match(r'\d+\.?\d*', value):
+            tokens.append(('NUMBER', value))
+        else:
+            tokens.append(('OP', value))
+    
+    return tokens
+
+def create_parser(tokens: List[Token]):
+    # Use a mutable list to manage state across functions without globals
+    pos_state = [0]  
+
+    def current() -> Token:
+        pos = pos_state[0]
+        if pos < len(tokens):
+            return tokens[pos]
+        return ('EOF', '')
+
+    def advance() -> None:
+        pos_state[0] += 1
+
+    def match(tok_type: str, value: str = None) -> bool:
+        t, v = current()
+        if t == tok_type and (value is None or v == value):
+            advance()
+            return True
+        return False
+
+    def expr() -> Expr:
+        node = term()
+        while match('OP', '+') or match('OP', '-'):
+            op = tokens[pos_state[0] - 1][1]
+            node = ("BinOp", node, op, term())
+        return node
+
+    def term() -> Expr:
+        node = unary()
+        while match('OP', '*') or match('OP', '/') or match('OP', '%'):
+            op = tokens[pos_state[0] - 1][1]
+            node = ("BinOp", node, op, unary())
+        return node
+
+    def unary() -> Expr:
+        if match('OP', '+') or match('OP', '-'):
+            op = tokens[pos_state[0] - 1][1]
+            return ("UnaryOp", op, unary())
+        return power()
+
+    def power() -> Expr:
         node = primary()
+        if match('OP', '^'):
+            node = ("BinOp", node, '^', unary())  # right-associative, allow unary in exponent
+        return node
+
+    def primary() -> Expr:
+        if match('NUMBER'):
+            return float(tokens[pos_state[0] - 1][1])
+        elif match('OP', '('):
+            node = expr()
+            if not match('OP', ')'):
+                raise SyntaxError("Expected ')'")
+            return node
+
+    def parse() -> Expr:
+        result = expr()
+        if current()[0] != 'EOF':
+            return result
+
+    return parse
+
+def evaluate(expr: Expr) -> float:
+    if isinstance(expr, float):
+        return expr
     
-    # 2. If the right-associative operator matches, recurse into yourself
-        if current_token() == '^':
-            op = next_token()
-            right = four() # <-- Note the recursive call to exponent()
+    if expr[0] == "BinOp":
+        _, left, op, right = expr
+        left_val = evaluate(left)
+        right_val = evaluate(right)
         
-        # This naturally groups the operation to the right
-        node =  BinOpNode(left=node, op=op, right=right)
-        
-        return node
-
-    #Having trouble understanding how to impliment unary- to be understood and unary+ to produce an error
+        if op == '+':
+            return left_val + right_val
+        elif op == '-':
+            return left_val - right_val
+        elif op == '*':
+            return left_val * right_val
+        elif op == '/':
+            return left_val / right_val if right_val != 0 else float('inf')
+        elif op == '%':
+            return left_val % right_val
+        elif op == '^':
+            return left_val ** right_val
     
-    def implicitm(self):
-
-        node = self.parse_factor()
-
-        while self.current_token:
-            if self.current_token.type == TokenType.MULTIPLY:
-                self.consume(TokenType.MULTIPLY)
-                node = BinaryOp('*', node, self.parse_factor())
-
-            elif self.is_start_of_factor(self.current_token):
-                # Implicit multiplication trigger
-                node = BinaryOp('*', node, self.parse_factor())
-
-            else:
-                break
-        return node
-
-    def two():
-                # 1. Grab the first operand (left-hand side)
-        node = term() 
-            
-                # 2. Keep looping as long as we see operators of the same precedence
-        while current_token() in ['*', '/', '%', 'implicitm()']:
-            op = next_token()
-            right = term() # Grab the next operand
-                
-                # 3. Wrap old node inside the new tree node (left-heavy tree)
-        node = BinOpNode(left=node, op=op, right=right) 
+    elif expr[0] == "UnaryOp":
+        _, op, val = expr
+        val_eval = evaluate(val)
+        if op == '-':
+            return -val_eval
+        elif op == '+':
+            return val_eval
     
-        return node
+    return 0.0
 
-    def one():
-            # 1. Grab the first operand (left-hand side)
-        node = term() 
-        
-            # 2. Keep looping as long as we see operators of the same precedence
-        while current_token() in ['+', '-']:
-            op = next_token()
-            right = term() # Grab the next operand
-            
-                # 3. Wrap old node inside the new tree node (left-heavy tree)
-        node = BinOpNode(left=node, op=op, right=right) 
-
-        return node
-    
-    return len(data)
-    
 with open('sample_input.txt', 'r') as f:
     for line in f:
-        print("Input: ", line.strip())
-        print("Tree: ", line.strip())
-        print("Token: ", line.strip())
-        print("Results: ", calculate_results(line.strip()))
-        print()
-
+            print(f"Input:  {line}")
         
+            tokens = tokenize(line)
+            print(f"Tokens: {tokens}")
+                
+            parse_func = create_parser(tokens)
+            tree = parse_func()
+            print(f"Tree:   {tree}")
+                
+            result = evaluate(tree)
+            print(f"Result: {result}")
+
+            print()
