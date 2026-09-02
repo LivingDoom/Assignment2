@@ -1,36 +1,33 @@
 def evaluate_file(input_path: str):
     with open(input_path, "r") as file:
-        lines = file.readlines()
+        for line in f:
+            expression = line.strip()
+        results.append(evaluate_exp(exp))
 
-    results = []
+    directory = os.pathdirectory(input_path)
+    output_path = os.path.join(directory, "output.txt")
 
-    for line in lines:
-        exp = line.strip()
-        print("Expression:", exp)
-        print("Tokens:", tokenize(exp))
+    with open(output_path, "w") as f:
+        for item in results:
+            f.write("Input: " + item["input"] + "/n")
+            f.write("Tree: " + item["tree"] + "\n")
+            f.write("Tokens:" + item["tokens"] + "\n")
+
+            result = item["result"]
+
+            if result == item["result"]
+
+            if result == "ERROR":
+                f.write("Result: ERROR\n")
+
+            else:
+                f.write("Result: " + format_number(result) + "\n")
+
+            f.write("\n")
 
     return results
 
 
 
 
-def tokenize(exp):
-    tokens = []
-
-    for char in exp:
-        if char.isdigit():
-            tokens.append("[NUM:" + char + "]")
-        elif char in "+-*/":
-            tokens.append("[OP:" + char + "]")
-        elif char == "(":
-            tokens.append("[LPAREN:(]")
-        elif char == ")":
-            tokens.append("[RPAREN:)]")
-        elif char == " ":
-            pass
-        else:
-            return "ERROR"
-        
-    return " ".join(tokens)
-    
-evaluate_file("sample_input.txt")        
+       
