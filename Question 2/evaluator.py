@@ -10,7 +10,7 @@ def evaluate_file(input_path: str):
     with open(output_path, "w") as f:
         for item in results:
             f.write("Input: " + item["input"] + "/n")
-            f.write("Tree: " + item["tree"] + "\n")
+            f.write("Tree: " + item["tree"] + "/n")
             f.write("Tokens:" + item["tokens"] + "\n")
 
             result = item["result"]
