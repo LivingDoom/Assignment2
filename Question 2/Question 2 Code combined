@@ -7,7 +7,64 @@
 
 
 
+############///////////////////////#######################
+###########   Formatting   #############
 
+# Formats 'Tree' lines
+def format_tree(node):
+    kind = node[0]
+    if kind == "num":
+        number = node[1]
+        if number % 1 == 0:
+            return str(int(number))
+        else:
+            return str(number)
+    if kind == "neg":
+        return "(neg " + format_tree(node[1]) + ")"
+    if kind == "op":
+        return "(" + node[1] + " " + format_tree(node[2]) + " " + format_tree(node[3]) + ")"
+
+def format_tree_lines(node):
+    if node is None:
+        return "ERROR"
+    else:
+        return fomrat_tree(node)
+
+
+# Formats 'Tokens' lines
+def format_token(token):
+    type = token[0]
+    value = token[1]
+    if type == "END":
+        return "[END]"
+    else:
+        return "[" + type + ":" + value + "]"
+
+def format_token_list(token_list):
+    pieces = []
+    for token in token_list:
+        pieces.append(format_token(token))
+    return " ".join(pieces)
+
+def format_token_lines(token):
+    if token is None:
+        return "ERROR"
+    else:
+        return format_token_list(token)
+
+
+# Formats 'Result' lines
+def format_result(sum):
+    if sum % 1 == 0:
+        return str(int(sum))
+    else:
+        return f'{sum:.4f}'
+
+def format_result_lines(sum):
+    if sum is None:
+        return "ERROR"
+    else:
+        return format_result(sum)
 
 
 
