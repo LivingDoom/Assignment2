@@ -1,21 +1,26 @@
-def evaluate_file(input_path: str):
-    with open(input_path, "r") as file:
+############///////////////////////#######################
+###########   Evaluator.py   #############
+
+def evaluate_file(input_path: str) -> list[dict]:
+    results = []
+
+#Read the file
+    with open(input_path, "r") as f:
         for line in f:
-            expression = line.strip()
-        results.append(evaluate_exp(exp))
+            exp = line.strip()
+            results.append(evaluate_exp(exp))
 
-    directory = os.pathdirectory(input_path)
-    output_path = os.path.join(directory, "output.txt")
-
+#Create output file
+    output_path = r"C:\Users\jonat\Jono's documents\University\CDU\Masters in GIS\Semester 2_2026\Hit137 Software Now\Assessment 2\output.txt"
+    
+#Write the results
     with open(output_path, "w") as f:
         for item in results:
-            f.write("Input: " + item["input"] + "/n")
-            f.write("Tree: " + item["tree"] + "/n")
-            f.write("Tokens:" + item["tokens"] + "\n")
+            f.write("Input: " + item["input"] + "\n")
+            f.write("Tree: " + tree_to_string(item["tree"]) + "\n")
+            f.write("Tokens: " + item["tokens"] + "\n")
 
             result = item["result"]
-
-            if result == item["result"]
 
             if result == "ERROR":
                 f.write("Result: ERROR\n")
@@ -27,7 +32,8 @@ def evaluate_file(input_path: str):
 
     return results
 
+input_path = r"C:\Users\jonat\Jono's documents\University\CDU\Masters in GIS\Semester 2_2026\Hit137 Software Now\Assessment 2\sample_input.txt"
+evaluate_file(input_path)
 
-
-
-       
+data = evaluate_file(input_path)
+     
