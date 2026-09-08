@@ -50,7 +50,7 @@ def create_parser(tokens: List[Token]):
         node = unary()
         while match('OP', '*') or match('OP', '/') or match('OP', '%'):
             op = tokens[pos_state[0] - 1][1]
-            node = ("Op" op, node, right)
+            node = ("Op", op, node, right)
         return node
 
     def unary() -> Expr:
