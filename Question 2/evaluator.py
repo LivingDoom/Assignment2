@@ -11,13 +11,13 @@ def evaluate_file(input_path: str) -> list[dict]:
             results.append(evaluate_exp(exp))
 
 #Create output file
-    output_path = r"C:\Users\jonat\Jono's documents\University\CDU\Masters in GIS\Semester 2_2026\Hit137 Software Now\Assessment 2\output.txt"
+    output_path = r"output.txt"
     
 #Write the results
     with open(output_path, "w") as f:
         for item in results:
             f.write("Input: " + item["input"] + "\n")
-            f.write("Tree: " + tree_to_string(item["tree"]) + "\n")
+            f.write("Tree: " + format_tree(item["tree"]) + "\n")
             f.write("Tokens: " + item["tokens"] + "\n")
 
             result = item["result"]
@@ -26,13 +26,13 @@ def evaluate_file(input_path: str) -> list[dict]:
                 f.write("Result: ERROR\n")
 
             else:
-                f.write("Result: " + format_number(result) + "\n")
+                f.write("Result: " + format_result(result) + "\n")
 
             f.write("\n")
 
     return results
 
-input_path = r"C:\Users\jonat\Jono's documents\University\CDU\Masters in GIS\Semester 2_2026\Hit137 Software Now\Assessment 2\sample_input.txt"
+input_path = r"sample_input.txt"
 evaluate_file(input_path)
 
 data = evaluate_file(input_path)
