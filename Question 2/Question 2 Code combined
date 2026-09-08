@@ -43,26 +43,26 @@ def create_parser(tokens: List[Token]):
         node = term()
         while match('OP', '+') or match('OP', '-'):
             op = tokens[pos_state[0] - 1][1]
-            node = ("BinOp", node, op, term())
+            node = ("Op", op, node, right)
         return node
 
     def term() -> Expr:
         node = unary()
         while match('OP', '*') or match('OP', '/') or match('OP', '%'):
             op = tokens[pos_state[0] - 1][1]
-            node = ("BinOp", node, op, unary())
+            node = ("Op" op, node, right)
         return node
 
     def unary() -> Expr:
         if match('OP', '+') or match('OP', '-'):
             op = tokens[pos_state[0] - 1][1]
-            return ("UnaryOp", op, unary())
+            return ("neg", op, unary())
         return power()
 
     def power() -> Expr:
         node = primary()
         if match('OP', '^'):
-            node = ("BinOp", node, '^', unary())  # right-associative, allow unary in exponent
+            node = ("Op", node, '^', unary())  # right-associative, allow unary in exponent
         return node
 
     def primary() -> Expr:
@@ -85,7 +85,7 @@ def evaluate(expr: Expr) -> float:
     if isinstance(expr, float):
         return expr
     
-    if expr[0] == "BinOp":
+    if expr[0] == "Op":
         _, left, op, right = expr
         left_val = evaluate(left)
         right_val = evaluate(right)
