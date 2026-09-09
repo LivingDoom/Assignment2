@@ -1,0 +1,263 @@
+#Combined Code Question 2
+
+import re
+from typing import Tuple, Union, List
+
+# Type aliases
+Token = Tuple[str, str]  # (type, value)
+Expr = Union[float, Tuple]  # expression: number or operator tuple
+
+def tokenize(expr_str: str) -> List[Token]:
+    tokens = []
+    token_pattern = r'(\d+\.?d*|[+\-*/%^()])'
+    position = 0
+    
+    for match in re.finditer(token_pattern, expr_str):
+        if expr_str[position:match.start()].strip() != "":
+            raise SyntaxError("Invalid Character")
+        value = match.group(1)
+        if re.match(r'\d+\.?\d*', value):
+            tokens.append(('NUM', value))
+        elif value == '(':
+            tokens.append(('LPAREN', value))
+        elif value == ')':
+            tokens.append(('RPAREN', value))
+        else:
+            tokens.append(('OP', value))
+        position = match.end()
+    if position != len(expr_str):
+        raise SyntaxError("Invalid character")
+    tokens.append(('END', ''))
+    
+    return tokens
+
+def create_parser(tokens: List[Token]):
+    # Use a mutable list to manage state across functions without globals
+    pos_state = [0]  
+
+    def current() -> Token:
+        pos = pos_state[0]
+        if pos < len(tokens):
+            return tokens[pos]
+        return ('END', '')
+
+    def advance() -> None:
+        pos_state[0] += 1
+
+    def match(tok_type: str, value: str = None) -> bool:
+        t, v = current()
+        if t == tok_type and (value is None or v == value):
+            advance()
+            return True
+        return False
+
+    def expr() -> Expr:
+        node = term()
+        while match('OP', '+') or match('OP', '-'):
+            op = tokens[pos_state[0] - 1][1]
+            node = ("BinOp", node, op, term())
+        return node
+
+    def term() -> Expr:
+        node = unary()
+        while match('OP', '*') or match('OP', '/') or match('OP', '%'):
+            op = tokens[pos_state[0] - 1][1]
+            node = ("BinOp", node, op, unary())
+        return node
+
+    def unary() -> Expr:
+        if match('OP', '+') or match('OP', '-'):
+            op = tokens[pos_state[0] - 1][1]
+            return ("UnaryOp", op, unary())
+        return power()
+
+    def power() -> Expr:
+        node = primary()
+        if match('OP', '^'):
+            node = ("BinOp", node, '^', unary())  # right-associative, allow unary in exponent
+        return node
+
+    def primary() -> Expr:
+        if match('NUM'):
+            return float(tokens[pos_state[0] - 1][1])
+        elif match('LPAREN', '('):
+            node = expr()
+            if not match('RPAREN', ')'):
+                raise SyntaxError("Expected ')'")
+            return node
+        raise SyntaxError("Expected number or '('")
+
+    def parse() -> Expr:
+        result = expr()
+        if current()[0] != 'END':
+            raise SyntaxError("Unexpected token")
+        return result
+
+    return parse
+
+def evaluate(expr: Expr) -> float:
+    if isinstance(expr, float):
+        return expr
+    
+    if expr[0] == "BinOp":
+        _, left, op, right = expr
+        left_val = evaluate(left)
+        right_val = evaluate(right)
+        
+        if op == '+':
+            return left_val + right_val
+        elif op == '-':
+            return left_val - right_val
+        elif op == '*':
+            return left_val * right_val
+        elif op == '/':
+            if right_val == 0:
+                return "ERROR"
+            return left_val / right_val
+        elif op == '%':
+            if right_val == 0:
+                return "ERROR"
+            return left_val % right_val 
+        elif op == '^':
+            return left_val ** right_val
+    
+    elif expr[0] == "UnaryOp":
+        _, op, val = expr
+        val_eval = evaluate(val)
+        if op == '-':
+            return -val_eval
+        elif op == '+':
+            return val_eval
+    
+    return 0.0
+
+def evaluate_exp(exp):
+    try:
+        tokens = tokenize(exp)
+        parser = create_parser(tokens)
+        tree = parser()
+        result = evaluate(tree)
+        return {
+            "input": exp,
+            "tokens": format_token_list(tokens),
+            "tree": tree,
+            "result": result
+        }
+    except SyntaxError:
+
+        return {
+            "input": exp,
+            "tokens": "ERROR",
+            "tree": "ERROR",
+            "result": "ERROR"
+        }
+
+print(tokenize("(10 - 2) * 3"))
+
+
+############///////////////////////#######################
+###########   Formatting   #############
+
+# Formats 'Tree' lines
+def format_tree(node):
+    if isinstance(node, float):
+        if node % 1 == 0:
+            return str(int(node))
+        else:
+            return str(node)
+    if node[0] == "UnaryOp":
+        return "(neg " + format_tree(node[2]) + ")"
+    if node[0] == "BinOp":
+        return "(" + node[2] + " " + format_tree(node[1]) + " " + format_tree(node[3]) + ")"
+    return "ERROR"
+
+def format_tree_lines(node):
+    if node is None:
+        return "ERROR"
+    else:
+        return format_tree(node)
+
+# Formats 'Tokens' lines
+def format_token(token):
+    type = token[0]
+    value = token[1]
+    if type == "END":
+        return "[END]"
+    else:
+        return "[" + type + ":" + value + "]"
+
+def format_token_list(token_list):
+    pieces = []
+    for token in token_list:
+        pieces.append(format_token(token))
+    return " ".join(pieces)
+
+def format_token_lines(token):
+    if token is None:
+        return "ERROR"
+    else:
+        return format_token_list(token)
+
+# Formats 'Result' lines
+def format_result(sum):
+    if sum % 1 == 0:
+        return str(int(sum))
+    else:
+        return f'{sum:.4f}'
+
+def format_result_lines(sum):
+    if sum is None:
+        return "ERROR"
+    else:
+        return format_result(sum)
+
+
+############///////////////////////#######################
+###########   Evaluator.py   #############
+
+def evaluate_file(input_path: str) -> list[dict]:
+    results = []
+
+#Read the file
+    with open(input_path, "r") as f:
+        for line in f:
+            exp = line.strip()
+            results.append(evaluate_exp(exp))
+
+#Create output file
+    output_path = r"output_combined.txt"
+    
+#Write the results
+    with open(output_path, "w") as f:
+        for item in results:
+            f.write("Input: " + item["input"] + "\n")
+            f.write("Tree: " + format_tree(item["tree"]) + "\n")
+            f.write("Tokens: " + item["tokens"] + "\n")
+
+            result = item["result"]
+
+            if result == "ERROR":
+                f.write("Result: ERROR\n")
+
+            else:
+                f.write("Result: " + format_result(result) + "\n")
+
+            f.write("\n")
+
+    return results
+
+input_path = r"sample_input.txt"
+
+data = evaluate_file(input_path)
+
+""" for terminal box """
+print("[")
+i = 0
+for item in data:
+    if i == len(data) - 1:
+        print(f"    {item}")
+    else:
+        print(f"    {item},")
+    i += 1
+print("]")
+
