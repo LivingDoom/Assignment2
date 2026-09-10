@@ -263,8 +263,8 @@ for item in data:
         "result": item["result"]
     }
     if i == len(data) - 1:
-        print(json.dumps(display_item))
+        print("    " + json.dumps(display_item))
     else:
-        print(json.dumps(display_item))
+        print("    " + json.dumps(display_item) + ",")
     i += 1
 print("]")
