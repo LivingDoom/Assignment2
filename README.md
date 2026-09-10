@@ -2,6 +2,7 @@
 SoftwareNow - Assignment2
 
 Cipher.py
+Evaluator.py
 
 Group Name: [DAN/EXT12] 
 Group Members:
