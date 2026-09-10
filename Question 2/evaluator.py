@@ -11,29 +11,18 @@ def evaluate_file(input_path: str) -> list[dict]:
             results.append(evaluate_exp(exp))
 
 #Create output file
-    output_path = r"output.txt"
+    output_path = os.path.join(os.path.dirname(input_path), "output.txt")
     
 #Write the results
     with open(output_path, "w") as f:
         for item in results:
             f.write("Input: " + item["input"] + "\n")
-            f.write("Tree: " + format_tree(item["tree"]) + "\n")
+            f.write("Tree: " + item["tree"] + "\n")
             f.write("Tokens: " + item["tokens"] + "\n")
-
-            result = item["result"]
-
-            if result == "ERROR":
-                f.write("Result: ERROR\n")
-
-            else:
-                f.write("Result: " + format_result(result) + "\n")
-
+            f.write("Result: " + item["result"] + "\n")
+            
             f.write("\n")
-
     return results
-
-input_path = r"sample_input.txt"
-evaluate_file(input_path)
 
 data = evaluate_file(input_path)
      
