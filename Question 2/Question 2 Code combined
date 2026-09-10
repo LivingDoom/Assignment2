@@ -40,44 +40,54 @@ def create_parser(tokens: List[Token]):
         return False
 
     def expr() -> Expr:
-        node = term()
+        left = term()
         while match('OP', '+') or match('OP', '-'):
             op = tokens[pos_state[0] - 1][1]
-            node = ("Op", op, node, right)
-        return node
+            right = term()
+            left = ("Op", op, left, right)
+        return left
 
     def term() -> Expr:
-        node = unary()
-        while match('OP', '*') or match('OP', '/') or match('OP', '%'):
-            op = tokens[pos_state[0] - 1][1]
-            node = ("Op", op, node, right)
-        return node
+        left = unary()
+        while True:
+            if match('OP', '*') or match('OP', '/') or match('OP', '%'):
+                op = tokens[pos_state[0] - 1][1]
+                right = unary()
+                left = ("Op", op, left, right)
+            elif current()[0] == "LPAREN":
+                right = unary()
+                left = ("Op", "*", left, right)
+            else:
+                break
+        return left
 
     def unary() -> Expr:
-        if match('OP', '+') or match('OP', '-'):
-            op = tokens[pos_state[0] - 1][1]
-            return ("neg", op, unary())
+        if match('OP', '+'):
+            raise SyntaxError("Unary plus is not supported")
+        if match('OP', '-'):
+            return ("neg", unary())
         return power()
 
     def power() -> Expr:
-        node = primary()
+        left = primary()
         if match('OP', '^'):
-            node = ("Op", node, '^', unary())  # right-associative, allow unary in exponent
-        return node
+            left = ("Op", "^", left, unary())  # right-associative, allow unary in exponent
+        return left
 
     def primary() -> Expr:
-        if match('NUMBER'):
+        if match('NUM'):
             return float(tokens[pos_state[0] - 1][1])
-        elif match('OP', '('):
-            node = expr()
-            if not match('OP', ')'):
+        elif match('LPAREN', '('):
+            left = expr()
+            if not match('RPAREN', ')'):
                 raise SyntaxError("Expected ')'")
-            return node
+            return left
 
     def parse() -> Expr:
         result = expr()
-        if current()[0] != 'EOF':
-            return result
+        if current()[0] != 'END':
+            raise SyntaxError
+        return result
 
     return parse
 
@@ -86,7 +96,7 @@ def evaluate(expr: Expr) -> float:
         return expr
     
     if expr[0] == "Op":
-        _, left, op, right = expr
+        _, op, left, right = expr
         left_val = evaluate(left)
         right_val = evaluate(right)
         
@@ -97,22 +107,15 @@ def evaluate(expr: Expr) -> float:
         elif op == '*':
             return left_val * right_val
         elif op == '/':
-            return left_val / right_val if right_val != 0 else float('inf')
+            return None if right_val == 0 else left_val / right_val
         elif op == '%':
-            return left_val % right_val
+            return None if right_val == 0 else left_val % right_val
         elif op == '^':
             return left_val ** right_val
     
-    elif expr[0] == "UnaryOp":
-        _, op, val = expr
-        val_eval = evaluate(val)
-        if op == '-':
-            return -val_eval
-        elif op == '+':
-            return val_eval
-    
-    return 0.0
-
+    elif expr[0] == "neg":
+        val_eval = evaluate(expr[1])
+        return -val_eval
 
 
 
