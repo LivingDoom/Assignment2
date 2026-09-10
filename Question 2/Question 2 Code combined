@@ -251,7 +251,7 @@ evaluate_file(input_path)
 data = evaluate_file(input_path)
 
 
-""" for terminal box """
+# For Terminal box
 print("[")
 i = 0
 for item in data:
