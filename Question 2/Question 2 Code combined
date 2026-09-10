@@ -117,13 +117,17 @@ def evaluate(expr: Expr) -> float:
 
 
 
-
-
 ############///////////////////////#######################
 ###########   Formatting   #############
 
 # Formats 'Tree' lines
 def format_tree(node):
+    if isinstance(node, float):
+        if node % 1 == 0:
+            return str(int(node))
+        else:
+            return str(node)
+
     kind = node[0]
     if kind == "num":
         number = node[1]
@@ -133,7 +137,7 @@ def format_tree(node):
             return str(number)
     if kind == "neg":
         return "(neg " + format_tree(node[1]) + ")"
-    if kind == "op":
+    if kind == "Op":
         return "(" + node[1] + " " + format_tree(node[2]) + " " + format_tree(node[3]) + ")"
 
 def format_tree_lines(node):
@@ -178,6 +182,28 @@ def format_result_lines(sum):
     else:
         return format_result(sum)
 
+# Produce the complete dictionary format
+def evaluate_exp(exp):
+    try:
+        tokens = tokenize(exp)
+        parser = create_parser(tokens)
+        tree = parser()
+        result = evaluate(tree)
+        return {
+            "input": exp,
+            "tree": format_tree_lines(tree),
+            "tokens": format_token_lines(tokens),
+            "result": format_result_lines(result)
+        }
+
+    except SyntaxError:
+        return {
+            "input": exp,
+            "tree": "ERROR",
+            "tokens": "ERROR",
+            "result": "ERROR"
+        }            
+
 
 
 ############///////////////////////#######################
@@ -219,13 +245,21 @@ evaluate_file(input_path)
 
 data = evaluate_file(input_path)
 
+
 """ for terminal box """
 print("[")
 i = 0
 for item in data:
+    tokens_for_display = item["tokens"].replace(" [END]", "")
+    display_item = {
+        "input": item["input"],
+        "tree": item["tree"],
+        "tokens": tokens_for_display,
+        "result": item["result"]
+    }
     if i == len(data) - 1:
-        print(f"    {item}")
+        print(f"    {display_item}")
     else:
-        print(f"    {item},")
+        print(f"    {display_item},")
     i += 1
 print("]")
