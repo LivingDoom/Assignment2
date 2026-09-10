@@ -1,4 +1,6 @@
 
+import os
+import json
 from typing import List, Tuple, Union
 import re
 
@@ -261,8 +263,8 @@ for item in data:
         "result": item["result"]
     }
     if i == len(data) - 1:
-        print(f"    {display_item}")
+        print(json.dumps(display_item))
     else:
-        print(f"    {display_item},")
+        print(json.dumps(display_item))
     i += 1
 print("]")
