@@ -15,10 +15,14 @@ def tokenize(expr_str: str) -> List[Token]:
     for match in re.finditer(token_pattern, expr_str):
         value = match.group(1)
         if re.match(r'\d+\.?\d*', value):
-            tokens.append(('NUMBER', value))
+            tokens.append(('NUM', value))
+        elif value == "(":
+            tokens.append(("LPAREN", "("))
+        elif value == ")":
+            tokens.append(("RPAREN", ")"))
         else:
             tokens.append(('OP', value))
-    
+    tokens.append(("END", None))
     return tokens
 
 def create_parser(tokens: List[Token]):
@@ -236,6 +240,8 @@ def evaluate_file(input_path: str) -> list[dict]:
             
             f.write("\n")
     return results
+
+input_path = r"sample_input.txt" # Enter pathway from directory here to access input text.
 
 data = evaluate_file(input_path)
 
