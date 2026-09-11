@@ -153,7 +153,7 @@ def format_tree_lines(node):
     if node is None:
         return "ERROR"
     else:
-        return fomrat_tree(node)
+        return format_tree(node)
 
 
 # Formats 'Tokens' lines
